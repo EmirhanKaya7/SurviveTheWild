@@ -4,68 +4,63 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public Animator playerAnim;
     public Rigidbody playerRigid;
-    public float w_speed, wb_speed, olw_speed, rn_speed, ro_speed,jumpforce;
-    public bool walking;
-    public Transform playerTrans;
-	
-	
-    void FixedUpdate(){
-        if(Input.GetKey(KeyCode.W)){
-            playerRigid.velocity = transform.forward * w_speed * Time.deltaTime;
-        }
-        if(Input.GetKey(KeyCode.S)){
-            playerRigid.velocity = -transform.forward * wb_speed * Time.deltaTime;
+    public float moveSpeed;
+    public float jumpForce;
+    private bool isJumping = false;
+
+    public Transform playerCamera;
+    public float mouseSensitivity = 100f;
+    private float verticalRotation = 0f;
+
+    void Update()
+    {
+        // Check for jump input
+        if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
+        {
+            Jump();
         }
     }
-    void Update(){
-        if(Input.GetKeyDown(KeyCode.W)){
-            playerAnim.SetTrigger("jog");
-            playerAnim.ResetTrigger("idle");
-            walking = true;
-            
-            //steps1.SetActive(true);
-        }
-        if(Input.GetKeyUp(KeyCode.W)){
-            playerAnim.ResetTrigger("jog");
-            playerAnim.SetTrigger("idle");
-            walking = false;
-            //steps1.SetActive(false);
-        }
-        if(Input.GetKeyDown(KeyCode.S)){
-            playerAnim.SetTrigger("jogback");
-            playerAnim.ResetTrigger("idle");
-            //steps1.SetActive(true);
-        }
-        if(Input.GetKeyUp(KeyCode.S)){
-            playerAnim.ResetTrigger("jogback");
-            playerAnim.SetTrigger("idle");
-            //steps1.SetActive(false);
-        }
-        if(Input.GetKey(KeyCode.A)){
-            playerTrans.Rotate(0, -ro_speed * Time.deltaTime, 0);
-        }
-        if(Input.GetKey(KeyCode.D)){
-            playerTrans.Rotate(0, ro_speed * Time.deltaTime, 0);
-        }
-        if(walking == true){				
-            if(Input.GetKeyDown(KeyCode.LeftShift)){
-                //steps1.SetActive(false);
-                //steps2.SetActive(true);
-                w_speed = w_speed + rn_speed;
-                playerAnim.SetTrigger("run");
-                playerAnim.ResetTrigger("jog");
-            }
-            if(Input.GetKeyUp(KeyCode.LeftShift)){
-                //steps1.SetActive(true);
-                //steps2.SetActive(false);
-                w_speed = olw_speed;
-                playerAnim.ResetTrigger("run");
-                playerAnim.SetTrigger("jog");
-            }
-        }
 
-        
+    void FixedUpdate()
+    {
+        // Get horizontal and vertical input values
+        float horizontalInput = Input.GetAxis("Horizontal");
+        float verticalInput = Input.GetAxis("Vertical");
+
+        // Calculate movement vector based on camera direction
+        Vector3 cameraForward = playerCamera.forward;
+        cameraForward.y = 0f;
+        cameraForward.Normalize();
+        Vector3 movement = (cameraForward * verticalInput + playerCamera.right * horizontalInput) * moveSpeed;
+        playerRigid.velocity = new Vector3(movement.x, playerRigid.velocity.y, movement.z);
+
+        // Rotate the player based on mouse input
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.fixedDeltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.fixedDeltaTime;
+
+        // Rotate the player horizontally
+        playerRigid.rotation *= Quaternion.Euler(0f, mouseX, 0f);
+
+        // Rotate the player camera vertically
+        verticalRotation -= mouseY;
+        verticalRotation = Mathf.Clamp(verticalRotation, -90f, 90f);
+        playerCamera.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
+    }
+
+    void Jump()
+    {
+        // Apply jump force
+        playerRigid.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        isJumping = true;
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        // Check if the player has landed on the ground
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isJumping = false;
+        }
     }
 }
