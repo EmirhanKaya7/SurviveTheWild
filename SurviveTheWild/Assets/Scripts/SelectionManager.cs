@@ -6,14 +6,27 @@ using TMPro;
 using Cinemachine;
 public class SelectionManager : MonoBehaviour
 {
+    public static SelectionManager Instance {get; set;}
     public GameObject interaction_info;
      TextMeshProUGUI int_text;
     public GameObject playerPos;
-   
+    public bool onTarget;
+
+    private void Awake() {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
     
     // Start is called before the first frame update
     void Start()
     {
+       onTarget = false;
         int_text = interaction_info.GetComponent<TextMeshProUGUI>();
     }
     
@@ -28,16 +41,24 @@ public class SelectionManager : MonoBehaviour
         {
             var selectTrans = hit.transform;
 
-            if (selectTrans.GetComponent<InteractableObject>())
+            InteractableObject interactable = selectTrans.GetComponent<InteractableObject>();
+            
+            if (interactable && interactable.playerInRange)
             {
-                int_text.text = selectTrans.GetComponent<InteractableObject>().GetItemName();
+                onTarget = true;
+                int_text.text = interactable.GetItemName();
                 interaction_info.SetActive(true);
                 
             }
             else
             {
+                onTarget = false;
                 interaction_info.SetActive(false);
             }
+        }
+        else{
+            onTarget = false;
+            interaction_info.SetActive(false);
         }
     }
 }
