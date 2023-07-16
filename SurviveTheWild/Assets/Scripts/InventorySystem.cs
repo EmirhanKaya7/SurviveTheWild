@@ -5,9 +5,13 @@ using UnityEngine;
 public class InventorySystem : MonoBehaviour
 {
     public static InventorySystem Instance;
+    public List<GameObject> slotList = new List<GameObject>();
+    public List<string> itemlist = new List<string>();
+    GameObject itemToAdd;
+    GameObject whatSlotToEquip;
     public GameObject inventoryScreenUI;
     public bool isOpen;
-
+    public bool isFull;
     private void Awake() {
         if (Instance == null)
         {
