@@ -11,8 +11,8 @@ public class InventorySystem : MonoBehaviour
     GameObject whatSlotToEquip;
     public GameObject inventoryScreenUI;
     public bool isOpen;
-    public bool isFull;
-    private void Awake() {
+    private void Awake()
+    {
         if (Instance == null)
         {
             Instance = this;
@@ -21,24 +21,81 @@ public class InventorySystem : MonoBehaviour
     void Start()
     {
         isOpen = false;
+        PopulateSlotList();
+
     }
 
-    // Update is called once per frame
+    private void PopulateSlotList()
+    {
+        foreach (Transform child in inventoryScreenUI.transform)
+        {
+            if (child.CompareTag("Slot"))
+            {
+                slotList.Add(child.gameObject);
+            }
+        }
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.I) && !isOpen)
         {
             inventoryScreenUI.SetActive(true);
             Cursor.lockState = CursorLockMode.None;
-            
-            isOpen =true;
+
+            isOpen = true;
         }
         else if (Input.GetKeyDown(KeyCode.I) && isOpen)
         {
             inventoryScreenUI.SetActive(false);
             Cursor.lockState = CursorLockMode.Locked;
 
-            isOpen =false;
+            isOpen = false;
         }
     }
+
+
+
+    public void AddToInventory(string itemName)
+    {
+        whatSlotToEquip = FindNextEmptySlot();
+        itemToAdd = Instantiate(Resources.Load<GameObject>(itemName), whatSlotToEquip.transform.position, whatSlotToEquip.transform.rotation);
+        itemToAdd.transform.SetParent(whatSlotToEquip.transform);
+        itemlist.Add(itemName);
+    }
+
+    public bool CheckIfFull()
+    {
+        int counter = 0;
+        foreach (GameObject slot in slotList)
+        {
+            if (slot.transform.childCount > 0)
+            {
+                counter++;
+            }
+
+        }
+        if (counter == 21)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private GameObject FindNextEmptySlot()
+    {
+        foreach (GameObject slot in slotList)
+        {
+            if (slot.transform.childCount == 0)
+            {
+                return slot;
+            }
+
+        }
+        return new GameObject();
+    }
+
 }
