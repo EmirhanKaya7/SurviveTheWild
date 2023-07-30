@@ -40,6 +40,7 @@ public class InventorySystem : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.I) && !isOpen)
         {
+            FirstPersonController.Instance.cameraCanMove = false;
             inventoryScreenUI.SetActive(true);
             Cursor.lockState = CursorLockMode.None;
 
@@ -47,6 +48,7 @@ public class InventorySystem : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.I) && isOpen)
         {
+            FirstPersonController.Instance.cameraCanMove = true;
             inventoryScreenUI.SetActive(false);
             Cursor.lockState = CursorLockMode.Locked;
 

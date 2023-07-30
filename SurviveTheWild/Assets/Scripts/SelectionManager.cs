@@ -11,7 +11,7 @@ public class SelectionManager : MonoBehaviour
      TextMeshProUGUI int_text;
     public GameObject playerPos;
     public bool onTarget;
-
+    public GameObject selectedObject;
     private void Awake() {
         if (Instance != null && Instance != this)
         {
@@ -46,6 +46,7 @@ public class SelectionManager : MonoBehaviour
             if (interactable && interactable.playerInRange)
             {
                 onTarget = true;
+                selectedObject = interactable.gameObject;
                 int_text.text = interactable.GetItemName();
                 interaction_info.SetActive(true);
                 
