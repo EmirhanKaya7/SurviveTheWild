@@ -19,7 +19,7 @@ public class CraftingSystem : MonoBehaviour
 
     TextMeshProUGUI req1, req2;
 
-    bool isOpen;
+    public bool isOpen;
 
 
     private void Awake()
@@ -49,6 +49,49 @@ public class CraftingSystem : MonoBehaviour
     private void CraftAnyItem()
     {
         
+        InventorySystem.Instance.AddToInventory();
+
+        InventorySystem.Instance.RemoveItem();
+
+        InventorySystem.Instance.ReCalculateList();
+
+        RefreshNeededItems();
+    }
+
+    private void RefreshNeededItems()
+    {
+        int stone_count =0;
+        int stick_count =0;
+
+        inventoryItemList = InventorySystem.Instance.itemlist;
+
+        foreach (string itemName in inventoryItemList)
+        {
+            switch (itemName)
+            {
+                case "Stone":
+                    stone_count ++;
+                    break;
+
+                case "Branch":
+                    stick_count++;
+                    break;
+                
+            }
+        }
+
+
+        req1.text = "3 Stone[" + stone_count + "]";
+        req2.text = "3 Branch[" + stick_count + "]";
+
+        if (stone_count >= 3 && stick_count >= 3)
+        {
+            craftBtn.gameObject.SetActive(true);
+        }
+        else
+        {
+            craftBtn.gameObject.SetActive(false);
+        }
     }
 
     void OpenToolsCategory()
@@ -60,6 +103,9 @@ public class CraftingSystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+         RefreshNeededItems();
+
+
         if (Input.GetKeyDown(KeyCode.C) && !isOpen)
         {
             FirstPersonController.Instance.cameraCanMove = false;
@@ -70,10 +116,15 @@ public class CraftingSystem : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.C) && isOpen)
         {
-            FirstPersonController.Instance.cameraCanMove = true;
             craftingScreenUI.SetActive(false);
             toolScreenUI.SetActive(false);
-            Cursor.lockState = CursorLockMode.Locked;
+            if (!InventorySystem.Instance.isOpen)
+            {
+            FirstPersonController.Instance.cameraCanMove = true;
+
+                Cursor.lockState = CursorLockMode.Locked;
+
+            }
 
             isOpen = false;
         }
