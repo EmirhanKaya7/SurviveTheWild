@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class InputManager : MonoBehaviour
 {
@@ -9,6 +11,7 @@ public class InputManager : MonoBehaviour
 
     private Vector3 lastPos;
 
+    public event Action OnClicked, OnExit;
 
     public Vector3 GetSelectedPos()
     {
@@ -32,6 +35,16 @@ public class InputManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetMouseButtonDown(0))
+        {
+            OnClicked?.Invoke();
+        }
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            OnExit?.Invoke();
+        }
     }
+
+    public bool IsPointerOverUI()
+       => EventSystem.current.IsPointerOverGameObject();
 }
