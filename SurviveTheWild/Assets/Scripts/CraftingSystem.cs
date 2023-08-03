@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,6 +22,7 @@ public class CraftingSystem : MonoBehaviour
 
     public bool isOpen;
 
+    public Blueprint Axeblp = new Blueprint("Axe", 2 , "Stone", 3, "Wood" ,3);
 
     private void Awake()
     {
@@ -40,22 +42,41 @@ public class CraftingSystem : MonoBehaviour
         toolsBtn.onClick.AddListener(delegate { OpenToolsCategory(); });
 
         req1 = toolScreenUI.transform.Find("Axe").transform.Find("req1").GetComponent<TextMeshProUGUI>(); 
-        req2 = toolScreenUI.transform.Find("Axe").transform.Find("req1").GetComponent<TextMeshProUGUI>();
+        req2 = toolScreenUI.transform.Find("Axe").transform.Find("req2").GetComponent<TextMeshProUGUI>();
 
-        craftBtn = toolScreenUI.transform.Find("Axe").transform.Find("Button").GetComponent<Button>();
-        craftBtn.onClick.AddListener(delegate { CraftAnyItem(); });
+        craftBtn = toolScreenUI.transform.Find("Axe").transform.Find("Craft").GetComponent<Button>();
+
+        craftBtn.onClick.AddListener(delegate { CraftAnyItem(Axeblp); });
     }
 
-    private void CraftAnyItem()
+    private void CraftAnyItem(Blueprint blueprint)
     {
         
-        InventorySystem.Instance.AddToInventory();
+        InventorySystem.Instance.AddToInventory(blueprint.itemName);
 
-        InventorySystem.Instance.RemoveItem();
+        if (blueprint.numOfReq == 1)
+        {
+        InventorySystem.Instance.RemoveItem(blueprint.Req1,blueprint.Req1amount);
+        }
+        else if (blueprint.numOfReq == 2)
+        {
+            InventorySystem.Instance.RemoveItem(blueprint.Req1, blueprint.Req1amount);
+            InventorySystem.Instance.RemoveItem(blueprint.Req2, blueprint.Req2amount);
+        }
 
-        InventorySystem.Instance.ReCalculateList();
+
+
+
+        StartCoroutine(calculate());
 
         RefreshNeededItems();
+    }
+
+    public IEnumerator calculate()
+    {
+        yield return new WaitForSeconds(1f);
+        InventorySystem.Instance.ReCalculateList();
+
     }
 
     private void RefreshNeededItems()
@@ -73,7 +94,7 @@ public class CraftingSystem : MonoBehaviour
                     stone_count ++;
                     break;
 
-                case "Branch":
+                case "Wood":
                     stick_count++;
                     break;
                 
@@ -82,7 +103,7 @@ public class CraftingSystem : MonoBehaviour
 
 
         req1.text = "3 Stone[" + stone_count + "]";
-        req2.text = "3 Branch[" + stick_count + "]";
+        req2.text = "3 Wood[" + stick_count + "]";
 
         if (stone_count >= 3 && stick_count >= 3)
         {
@@ -103,7 +124,7 @@ public class CraftingSystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-         RefreshNeededItems();
+        RefreshNeededItems();
 
 
         if (Input.GetKeyDown(KeyCode.C) && !isOpen)
