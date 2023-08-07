@@ -12,6 +12,9 @@ public class SelectionManager : MonoBehaviour
     public GameObject playerPos;
     public bool onTarget;
     public GameObject selectedObject;
+    public Image centerDotIcon;
+    public Image handIcon;
+
     private void Awake() {
         if (Instance != null && Instance != this)
         {
@@ -49,17 +52,31 @@ public class SelectionManager : MonoBehaviour
                 selectedObject = interactable.gameObject;
                 int_text.text = interactable.GetItemName();
                 interaction_info.SetActive(true);
-                
+                if (interactable.CompareTag("pickable"))
+                {
+                    centerDotIcon.gameObject.SetActive(false);
+                    handIcon.gameObject.SetActive(true);
+                }
+                else
+                {
+                    centerDotIcon.gameObject.SetActive(true);
+                    handIcon.gameObject.SetActive(false);
+                }
             }
-            else
+            else // hit but without Interactable script
             {
                 onTarget = false;
                 interaction_info.SetActive(false);
+                centerDotIcon.gameObject.SetActive(true);
+                handIcon.gameObject.SetActive(false);
             }
         }
-        else{
+        else // no hit
+        {
             onTarget = false;
             interaction_info.SetActive(false);
+            centerDotIcon.gameObject.SetActive(true);
+            handIcon.gameObject.SetActive(false);
         }
     }
 }
